@@ -6,8 +6,12 @@ from google.cloud import bigquery
 import plotly.express as px
 
 # Authenticate with Google Cloud
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/parishah/Desktop/Capstone_Project/hid502-7ab631613ed3.json"
-client = bigquery.Client()
+import json
+from google.oauth2 import service_account
+
+service_account_info = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
+credentials = service_account.Credentials.from_service_account_info(service_account_info)
+client = bigquery.Client(credentials=credentials)
 
 # Load data from BigQuery
 def load_data():
