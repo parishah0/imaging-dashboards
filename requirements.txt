@@ -3,3 +3,4 @@ pandas
 plotly
 google-cloud-bigquery
 gunicorn
+db-dtypes
