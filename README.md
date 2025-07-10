@@ -45,10 +45,10 @@ RUN THE DASHBOARD
 To run the dashboard:
 
 Option 1: Full File Path
-    python3 /full/path/to/app_new_table.py
+    python3 /full/path/to/app.py
 
 Option 2: If you're already in the project directory
-    python3 app_new_table.py
+    python3 app.py
 
 After running the script, visit the local URL in your terminal (e.g., http://127.0.0.1:8050/) 
 to interact with the dashboard.
