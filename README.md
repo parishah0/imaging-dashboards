@@ -1,4 +1,3 @@
-"""
 NLST Lung Cancer Imaging Dashboard
 
 This project is an interactive Dash dashboard that visualizes longitudinal CT segmentation data 
@@ -58,4 +57,3 @@ to interact with the dashboard.
 CONTACT
 
 For questions or access issues, contact: pps42@georgetown.edu
-"""
