@@ -6,34 +6,27 @@ from google.cloud import bigquery
 import plotly.express as px
 
 # Authenticate with Google Cloud
-import json
-from google.oauth2 import service_account
-
-service_account_info = json.loads(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
-credentials = service_account.Credentials.from_service_account_info(service_account_info)
-client = bigquery.Client(credentials=credentials)
+# Authenticate with Google Cloud
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/parishah/Desktop/Capstone_Project/hid502-7ab631613ed3.json"
+client = bigquery.Client()
 
 # Load data from BigQuery
 def load_data():
     query = """
         SELECT
-          vol.PatientID,
-          demo.gender_description,
-          demo.race_description,
-          demo.age,
-          demo.stage_description AS clinical_stage,
-          demo.cigsmok_description AS smoking_status,
-          img.ClinicalTrialTimePointID,
-          vol.structure,
-          vol.segmentationSeriesUID,
-          vol.sourceSegmentedSeriesUID,
-          vol.StudyInstanceUID,
-          SAFE_CAST(vol.volume_mm3 AS FLOAT64) AS volume_mm3
-        FROM `idc-external-031.nlst_capstone2025.volume_measurements` vol
-        JOIN `idc-external-031.nlst_capstone2025.nlst_imaging_characteristics` img
-          ON vol.sourceSegmentedSeriesUID = img.sourceSegmentedSeriesUID
-        JOIN `idc-external-031.nlst_capstone2025.clinical_data_mapping` demo
-          ON vol.PatientID = demo.PatientID
+        PatientID,
+        gender AS gender_description,
+        race AS race_description,
+        age,
+        clinical_stage,
+        cigsmok AS smoking_status,
+        ClinicalTrialTimePointID,
+        structure,
+        segmentationSeriesUID,
+        sourceSegmentedSeriesUID,
+        StudyInstanceUID,
+        SAFE_CAST(volume_ml AS FLOAT64) AS volume_ml
+        FROM `idc-external-031.nlst_capstone2025.volume_measurements_joined_table`
     """
     df = client.query(query).to_dataframe()
 
@@ -142,12 +135,12 @@ def update_boxplot(structure, smoking, gender, race, stage, age_range):
     fig = px.box(
         filtered,
         x='ClinicalTrialTimePointID',
-        y='volume_mm3',
+        y='volume_ml',
         color='smoking_status',
         points='all',
         category_orders={'ClinicalTrialTimePointID': ['T0', 'T1', 'T2']},
         labels={
-            'volume_mm3': f'{structure} Volume (mm³)',
+            'volume_ml': f'{structure} Volume (mm³)',
             'ClinicalTrialTimePointID': 'Time Point',
             'smoking_status': 'Smoking Status'
         },
