@@ -1,59 +1,102 @@
-NLST Lung Cancer Imaging Dashboard
+# Patient Dashboard Setup Guide
 
-This project is an interactive Dash dashboard that visualizes longitudinal CT segmentation data 
-and patient demographics from the NLST dataset hosted on the Imaging Data Commons. 
-It supports exploration of organ volume changes across time points, stratified by demographic 
-and clinical factors such as smoking status.
+This project includes a backend (FastAPI) and frontend (React) for the Patient Dashboard. Follow the steps below to get started.
 
---------------------------------------------------------------------------------
-GETTING STARTED
+---
 
-Prerequisites:
-- Python 3.8+
-- Google Cloud SDK (or access to a valid GCP project)
-- Access to the `idc-external-031.nlst_capstone2025` BigQuery dataset
-- BigQuery and GCP credentials set up
+## 🚀 Getting Started
 
-Install required packages:
-    pip install dash pandas google-cloud-bigquery plotly
+### 1. Clone the Repository
 
---------------------------------------------------------------------------------
-FIRST STEP: Google Cloud Credentials
+```bash
+git clone https://github.com/parishah0/imaging-dashboards.git
+cd patient-dashboard-new
+```
 
-You must create a Google Cloud service account key JSON file.
+---
 
-1. Go to: https://console.cloud.google.com/iam-admin/serviceaccounts
-2. Create a service account and generate a key file
-3. Save the JSON file to your machine
+### 2. Install Dependencies
 
-Then replace the following line in this script with the correct path to your credentials file:
+#### 🧩 Node and NPM Versions
 
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/path/to/your/credentials.json"
+This project requires:
 
-Example:
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/parishah/Desktop/Capstone_Project/hid502-7ab631613ed3.json"
+- **Node.js:** v23.11.1  
+- **npm:** v10.9.2
 
---------------------------------------------------------------------------------
-BIGQUERY ACCESS
+To install the correct versions:
 
-Make sure your service account has permission to access the following dataset:
-    idc-external-031.nlst_capstone2025
+1. Go to the official Node.js download helper at [https://nodejs.org/en/download/package-manager](https://nodejs.org/en/download/package-manager)
+2. Select the following parameters:
+   - **Node.js version:** `v23.11.1`
+   - **OS:** Your operating system (e.g., macOS, Linux, Windows)
+   - **Installer:** `nvm`
+   - **Package manager:** `npm`
+3. Follow the installation instructions provided on the page.
 
---------------------------------------------------------------------------------
-RUN THE DASHBOARD
+Once installed, verify your versions:
 
-To run the dashboard:
+```bash
+node -v      # Should print "v23.11.1"
+npm -v       # Should print "10.9.2"
+```
 
-Option 1: Full File Path
-    python3 /full/path/to/app_new_table.py
+#### 📦 Backend Dependencies
 
-Option 2: If you're already in the project directory
-    python3 app_new_table.py
+Navigate to the backend folder and install the required Python packages:
 
-After running the script, visit the local URL in your terminal (e.g., http://127.0.0.1:8050/) 
-to interact with the dashboard.
+```bash
+cd backend
+pip3 install -r requirements.txt
+```
 
---------------------------------------------------------------------------------
-CONTACT
+#### 🎨 Frontend Dependencies
 
-For questions or access issues, contact: pps42@georgetown.edu
+Navigate to the frontend folder and install the required Node modules:
+
+```bash
+cd ../frontend
+npm install
+```
+
+---
+
+## 🔐 Add Credentials
+
+### 1. `.json` File
+
+Place your service account key JSON file (e.g., `Pari-idc-external-031-c40d20a271c3.json`) in the `backend` directory.
+
+### 2. `.env` File
+
+In the `backend` directory, create a `.env` file and add the following line:
+
+```env
+GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/your/json/file.json
+```
+
+Replace `/absolute/path/to/your/json/file.json` with the actual full path to your `.json` credentials file.
+
+---
+
+## ▶️ Running the Code
+
+### Backend
+
+```bash
+cd backend
+uvicorn app:app --reload
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+---
+
+## ✅ You're Ready!
+
+Once both the backend and frontend are running, the application will be accessible in your browser.
