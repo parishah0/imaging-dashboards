@@ -20,7 +20,6 @@ const frame = {
 };
 
 export default function ImageModal({ url, onClose }) {
-  // close on Esc
   useEffect(() => {
     const handler = (e) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handler);
@@ -41,7 +40,7 @@ export default function ImageModal({ url, onClose }) {
         src={url}
         style={frame}
         allowFullScreen
-        onClick={(e) => e.stopPropagation()}  // prevent backdrop-close
+        onClick={(e) => e.stopPropagation()}
       />
     </div>
   );

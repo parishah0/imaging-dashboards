@@ -1,3 +1,5 @@
+// src/components/VolumeBoxplotDashboard.jsx
+
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Plot from "react-plotly.js";
 import EmbeddedViewer from "./EmbeddedViewer";
@@ -15,7 +17,7 @@ export default function VolumeBoxplotDashboard() {
   //   smoking_status: [], gender: [], race: [], clinical_stage: [], age_range: [0, 100]
   // });
   const [draftFilters, setDraftFilters]   = useState({
-    structure: "Aorta",          
+    structure: "Aorta",          // ⬅️ moved in here
     smoking_status: [],
     gender: [],
     race: [],
@@ -165,8 +167,8 @@ export default function VolumeBoxplotDashboard() {
   //   setAppliedFilters(filters);
   // };
   const applyFilters = () => {
-    setAppliedFilters(draftFilters);   
-    fetchVolumeData(draftFilters);     // only place the query is ever fired
+    setAppliedFilters(draftFilters);   // for later inspection / UI badges
+    fetchVolumeData(draftFilters);     // <-- only place the query is ever fired
   };
 
   /* ───────── Build traces + invisible scatter overlay ───────── */
@@ -210,6 +212,7 @@ export default function VolumeBoxplotDashboard() {
       });
     }).filter(Boolean);
 
+    // Invisible scatter on top (guaranteed click target, now larger)
     const scatterTraces = groups.flatMap(() => {
       return timePoints.map(tp => {
         const pts = volumeData.filter(d => d.ClinicalTrialTimePointID === tp);
@@ -238,13 +241,27 @@ export default function VolumeBoxplotDashboard() {
   };
 
   const layout = {
-    title: `Distribution of ${selectedStructure} Volume`,
+    title: `Distribution of ${draftFilters.structure} Volume`,
     xaxis: {
-      title: "Time Point",
+      title: {
+        text: 'Clinical Time Points',
+        font: { size: 16, color: '#2d3748', family: 'Inter, Segoe UI, system-ui, sans-serif' },
+        standoff: 12
+      },
       categoryorder: "array",
-      categoryarray: ["T0","T1","T2"]
+      categoryarray: ["T0","T1","T2"],
+      tickfont: { size: 14, color: '#475569' },
+      tickvals: ["T0","T1","T2"],
+      ticktext: ["T0", "T1", "T2"],
     },
-    yaxis: { title: `${selectedStructure} Volume (mm³)` },
+    yaxis: {
+      title: {
+        text: `Volume of Structure (mm³)`,
+        font: { size: 16, color: '#2d3748', family: 'Inter, Segoe UI, system-ui, sans-serif' },
+        standoff: 16
+      },
+      tickfont: { size: 14, color: '#475569' }
+    },
     boxmode: "group",
     height: 550,
     hovermode: "closest",
@@ -255,7 +272,7 @@ export default function VolumeBoxplotDashboard() {
 
   const uniqueSegs = new Set(volumeData.map(d => d.segmentationSeriesUID)).size;
 
-  /* ───────── DEBUGGING CONSOLE ───────── */
+  /* ───────── onClick handler ───────── */
 const handleClick = (data) => {
   console.log("🔥 onClick eventData:", data);
 
@@ -270,8 +287,9 @@ const handleClick = (data) => {
     return;
   }
 
+  /* full object for panel & viewer */
   const cd  = pt.data.customdata[pt.pointNumber];
-  setPatientInfo(cd);
+  setPatientInfo(cd);                       // ← show Patient Details panel
 
   const url = cd.viewer_url;
   console.log("→ viewer_url:", url);
