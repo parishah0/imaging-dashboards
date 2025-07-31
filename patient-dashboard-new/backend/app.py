@@ -20,7 +20,8 @@ from google.cloud import bigquery
 # --------------------------------------------------
 
 load_dotenv()  # reads .env in the current working dir, if present
-GCP_PROJECT = os.getenv("GCP_PROJECT", "idc-external-031")  # fallback to project id you used
+# GCP_PROJECT = os.getenv("GCP_PROJECT", "hid502")  # fallback to project id you used
+GCP_PROJECT = os.getenv("GCP_PROJECT", "idc-external-031") 
 client = bigquery.Client(project=GCP_PROJECT)
 
 # --------------------------------------------------
@@ -35,7 +36,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          
+    allow_origins=["*"],          # tighten this in production
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -49,7 +50,7 @@ def bq(sql: str) -> pd.DataFrame:
     return client.query(sql).to_dataframe()
 
 # --------------------------------------------------
-# endpoints
+# Routes
 # --------------------------------------------------
 
 @app.get("/api/patient-data")
@@ -58,7 +59,9 @@ def patient_data():
     Basic demographic data for populating summary widgets.
     """
     sql = """
-        SELECT age,
+        SELECT 
+               PatientID  AS patient_id,
+               age,
                gender_description,
                race_description,
                stage_description,
@@ -135,6 +138,7 @@ def volume_data(
         + df["segmentationSeriesUID"].astype(str)
     )
 
+    # Replace nulls for cleaner dropdowns
     for col in ("gender_description", "race_description", "clinical_stage", "smoking_status"):
         df[col] = df[col].fillna("N/A")
 
@@ -192,9 +196,7 @@ def get_filter_options():
 
 
 # --------------------------------------------------
-# Local development config:
-# host = 0.0.0.0
-# port 8000
+# Local development entry-point
 # --------------------------------------------------
 
 if __name__ == "__main__":
@@ -204,6 +206,6 @@ if __name__ == "__main__":
         "app:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,         
+        reload=True,         # auto-reload on code change (dev only)
         log_level="info",
     )
