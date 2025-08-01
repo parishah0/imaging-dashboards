@@ -52,6 +52,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# --------------------------------------------------
+# Root/health routes
+# --------------------------------------------------
+
+@app.get("/")
+def read_root():
+    return {"status": "ok", "service": "nlst-api"}
+
+# (optional) a dedicated health path Render can probe
+@app.get("/healthz")
+def health():
+    return {"ok": True}
 
 # --------------------------------------------------
 # Helper: run a BigQuery SQL string and return DataFrame
