@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Plot from "react-plotly.js";
 import EmbeddedViewer from "./EmbeddedViewer";
+import "../App.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
@@ -35,6 +36,28 @@ export default function VolumeBoxplotDashboard() {
   const [patientInfo, setPatientInfo] = useState(null);
   // embedded IDC viewer URL
   const [viewerUrl, setViewerUrl]           = useState(null);
+
+  // Color palette from the provided dashboard image
+  const palette = {
+    bgGradient: "linear-gradient(135deg, #f8fafc 0%, #fdf6f0 100%)", // background
+    cardBg: "#fff",
+    cardBorder: "#e2e8f0",
+    accent: "#ffb980", // orange accent
+    accentDark: "#f57c00", // deeper orange
+    accentLight: "#ffe0b2", // light orange
+    textMain: "#2d3748",
+    textSubtle: "#64748b",
+    textAccent: "#f57c00",
+    statGray: "#bfc9d1",
+    statBlack: "#22292f",
+    statOrange: "#ffb980",
+    statOrangeDark: "#f57c00",
+    statOrangeLight: "#ffe0b2",
+    statBlue: "#5b9bd5",
+    statBlueLight: "#e0f2fe",
+    statBlueDark: "#0277bd",
+    statBorder: "#cbd5e1",
+  };
 
   /* ───────── Load filter-options & structures once ───────── */
   useEffect(() => {
@@ -202,8 +225,8 @@ export default function VolumeBoxplotDashboard() {
           customdata: pts.map(d => ({
             viewer_url: d.viewer_url,
             age:        d.age,
-            gender:     d.gender,
-            race:       d.race,
+            gender:     d.gender_description,
+            race:       d.race_description,
             stage:      d.clinical_stage,
    volume:     d.volume_ml
  })),
@@ -226,8 +249,8 @@ export default function VolumeBoxplotDashboard() {
           customdata: pts.map(d => ({
    viewer_url: d.viewer_url,
    age:        d.age,
-   gender:     d.gender,
-   race:       d.race,
+   gender:     d.gender_description,
+   race:       d.race_description,
    stage:      d.clinical_stage,
    volume:     d.volume_ml
  })),
@@ -309,13 +332,7 @@ const handleClick = (data) => {
 
 
   return (
-    <div style={{ 
-      padding: "32px", 
-      fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
-      background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-      minHeight: "100vh",
-      color: "#2d3748"
-    }}>
+   <div className="dashboard-container">
       {/* Header */}
       <div style={{
         textAlign: "center",
@@ -350,18 +367,17 @@ const handleClick = (data) => {
       </div>
 
       {/* Main Content Card */}
-      <div style={{
-        background: "rgba(255, 255, 255, 0.95)",
+      <div className="main-card" style={{
+        background: palette.cardBg,
         borderRadius: "20px",
         padding: "32px",
-        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-        backdropFilter: "blur(10px)",
-        border: "1px solid rgba(255, 255, 255, 0.2)",
+        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08)",
+        border: `1px solid ${palette.cardBorder}`,
         marginBottom: "24px"
       }}>
 
         {/* Structure Selector */}
-        <div style={{ 
+        <div className="card" style={{ 
           marginBottom: "32px",
           padding: "20px",
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -408,7 +424,7 @@ const handleClick = (data) => {
         </div>
 
         {/* Filters */}
-        <div style={{
+        <div className="card" style={{
           marginBottom: "32px"
         }}>
           <h3 style={{
@@ -686,9 +702,9 @@ const handleClick = (data) => {
             fontSize: "16px",
             fontWeight: "600",
             background: filterLoading 
-              ? "linear-gradient(135deg, #94a3b8 0%, #64748b 100%)" 
-              : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
+              ? palette.statGray
+              : `linear-gradient(135deg, ${palette.accent} 0%, ${palette.accentDark} 100%)`,
+            color: "#fff",
             border: "none",
             borderRadius: "12px",
             cursor: filterLoading ? "not-allowed" : "pointer",
@@ -716,7 +732,7 @@ const handleClick = (data) => {
           {filterLoading ? "⏳ Loading…" : "🔍 Apply Filters"}
         </button>
 
-        <div style={{ 
+        <div className="card" style={{ 
           padding: "16px 24px",
           background: "linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%)",
           borderRadius: "12px",
@@ -746,7 +762,7 @@ const handleClick = (data) => {
         </div>
 
         {error && (
-          <div style={{ 
+          <div className="card" style={{ 
             padding: "16px 24px",
             background: "linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)",
             borderRadius: "12px",
@@ -766,7 +782,7 @@ const handleClick = (data) => {
         )}
 
         {!loading && volumeData.length > 0 && (
-          <div style={{
+          <div className="card" style={{
             background: "white",
             borderRadius: "16px",
             padding: "24px",
@@ -782,12 +798,23 @@ const handleClick = (data) => {
               onClick={handleClick}
             />
             {patientInfo && (
-  <div className="hover-panel">
-    <strong>Patient Details</strong><br/>
-    Age&nbsp;{patientInfo.age} | Gender&nbsp;{patientInfo.gender}<br/>
-    Race&nbsp;{patientInfo.race}<br/>
-    Stage&nbsp;{patientInfo.stage}<br/>
-    Volume&nbsp;{patientInfo.volume.toLocaleString()} mm³
+  <div className="hover-panel" style={{
+    background: palette.statOrangeLight,
+    border: `1px solid ${palette.statOrange}`,
+    borderRadius: "12px",
+    padding: "16px 20px",
+    marginTop: "16px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+    color: palette.textMain,
+    fontSize: "15px",
+    maxWidth: "320px"
+  }}>
+    <strong style={{ fontSize: "17px", color: "#4f46e5" }}>Patient Details</strong><br/>
+    <span>Age: <b>{patientInfo.age ?? "N/A"}</b></span><br/>
+    <span>Gender: <b>{patientInfo.gender ?? patientInfo.Gender ?? "N/A"}</b></span><br/>
+    <span>Race: <b>{patientInfo.race ?? patientInfo.Race ?? "N/A"}</b></span><br/>
+    <span>Stage: <b>{patientInfo.stage ?? patientInfo.Stage ?? "N/A"}</b></span><br/>
+    <span>Volume: <b>{patientInfo.volume != null ? patientInfo.volume.toLocaleString() : (patientInfo.Volume != null ? patientInfo.Volume.toLocaleString() : "N/A")} mm³</b></span>
   </div>
             )}
           </div>
@@ -795,7 +822,7 @@ const handleClick = (data) => {
         )}
 
         {!loading && volumeData.length === 0 && !error && (
-          <div style={{
+          <div className="card" style={{
             background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
             borderRadius: "16px",
             padding: "48px 24px",
