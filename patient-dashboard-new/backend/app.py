@@ -20,8 +20,8 @@ from google.cloud import bigquery
 # --------------------------------------------------
 
 load_dotenv()  # reads .env in the current working dir, if present
-# GCP_PROJECT = os.getenv("GCP_PROJECT", "hid502")  # fallback to project id you used
-GCP_PROJECT = os.getenv("GCP_PROJECT", "idc-external-031") 
+
+GCP_PROJECT = os.getenv("GCP_PROJECT", "idc-external-031")
 client = bigquery.Client(project=GCP_PROJECT)
 
 # --------------------------------------------------
@@ -34,9 +34,21 @@ app = FastAPI(
     description="Serves clinical and segmentation-volume data for the React dashboard.",
 )
 
+# CORS configuration:
+# - FRONTEND_ORIGINS: comma-separated list of allowed origins.
+#   Example (Render/Vercel): "https://YOUR-SITE.vercel.app, http://localhost:5173"
+# - ALLOW_ORIGIN_REGEX: optional regex for preview URLs, e.g., r"https://.*-YOUR-SITE\.vercel\.app"
+# - ALLOW_CREDENTIALS: "true"/"false" (use true only if you rely on cookies)
+_frontend_origins = os.getenv("FRONTEND_ORIGINS", "http://localhost:5173")
+allow_origins = [o.strip() for o in _frontend_origins.split(",") if o.strip()]
+allow_origin_regex = os.getenv("ALLOW_ORIGIN_REGEX") or None
+allow_credentials = os.getenv("ALLOW_CREDENTIALS", "false").lower() == "true"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # tighten this in production
+    allow_origins=allow_origins,
+    allow_origin_regex=allow_origin_regex,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -203,7 +215,7 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
-        "app:app",
+        "app:app",           # module:variable (this file is main.py)
         host="0.0.0.0",
         port=8000,
         reload=True,         # auto-reload on code change (dev only)
