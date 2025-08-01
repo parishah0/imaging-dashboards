@@ -1,4 +1,4 @@
-// src/App.jsx
+App.jsx// src/App.jsx
 import React, {
   Suspense,
   useEffect,
@@ -30,8 +30,7 @@ function Page({ children }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.35 }}
-      style={{ padding: "2rem" }}
-    >
+style={{ padding: "0", width: "100%" }}    >
       {children}
     </motion.div>
   );
@@ -66,9 +65,8 @@ function Shell() {
       <nav className="navbar">
         <span style={{ color: "var(--primary-2)", fontWeight: 600 }}>
           <i className="ri-hospital-line icon" />
-          Imaging Analytics
+          Imaging Analytics
         </span>
-
         <NavLink
           to="/volume"
           className={({ isActive }) => `tab ${isActive ? "active" : ""}`}
@@ -83,30 +81,32 @@ function Shell() {
         </NavLink>
       </nav>
 
-      {/* route transitions */}
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route
-            path="/volume"
-            element={
-              <Page>
-                <VolumeBoxplotDashboard />
-              </Page>
-            }
-          />
-          <Route
-            path="/demographics"
-            element={
-              <Page>
-                <Suspense fallback={<Loader />}>
-                  <DemographicDashboard />
-                </Suspense>
-              </Page>
-            }
-          />
-          <Route path="*" element={<Navigate to="/volume" />} />
-        </Routes>
-      </AnimatePresence>
+      {/* push routed pages below the fixed navbar */}
+      <div className="dashboard-container">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route
+              path="/volume"
+              element={
+                <Page>
+                  <VolumeBoxplotDashboard />
+                </Page>
+              }
+            />
+            <Route
+              path="/demographics"
+              element={
+                <Page>
+                  <Suspense fallback={<Loader />}>
+                    <DemographicDashboard />
+                  </Suspense>
+                </Page>
+              }
+            />
+            <Route path="*" element={<Navigate to="/volume" />} />
+          </Routes>
+        </AnimatePresence>
+      </div>
     </>
   );
 }
