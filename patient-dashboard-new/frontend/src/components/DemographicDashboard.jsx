@@ -1,3 +1,4 @@
+// patient-dashboard-new/frontend/src/components/DemographicDashboard.jsx
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Chart as ChartJS,
@@ -21,7 +22,8 @@ ChartJS.register(
   Legend
 );
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+// Use the production backend URL from Vercel env, fallback to local dev
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
 
 export default function DemographicDashboard() {
   const [rows, setRows] = useState([]);
