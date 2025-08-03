@@ -1,11 +1,11 @@
-// src/components/VolumeBoxplotDashboard.jsx
-
+// patient-dashboard-new/frontend/src/components/VolumeBoxplotDashboard.jsx
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Plot from "react-plotly.js";
 import EmbeddedViewer from "./EmbeddedViewer";
 import "../App.css";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+// Use the Vercel env var; fall back to localhost for dev. Trim any trailing slash.
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
 
 export default function VolumeBoxplotDashboard() {
   /* ───────── State ───────── */
