@@ -23,7 +23,9 @@ ChartJS.register(
 );
 
 // Use the production backend URL from Vercel env, fallback to local dev
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000")
+  .trim()
+  .replace(/\/$/, "");
 
 export default function DemographicDashboard() {
   const [rows, setRows] = useState([]);

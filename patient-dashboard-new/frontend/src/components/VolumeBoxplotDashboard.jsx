@@ -5,7 +5,9 @@ import EmbeddedViewer from "./EmbeddedViewer";
 import "../App.css";
 
 // Use the Vercel env var; fall back to localhost for dev. Trim any trailing slash.
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000")
+  .trim()
+  .replace(/\/$/, "");
 
 export default function VolumeBoxplotDashboard() {
   /* ───────── State ───────── */
