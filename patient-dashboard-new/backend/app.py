@@ -1,9 +1,8 @@
 """
-main.py  – FastAPI back-end for NLST volume-measurement dashboard
----------------------------------------------------------------
-• Requires: fastapi, uvicorn[standard], python-dotenv, pandas, google-cloud-bigquery
-• Make sure GOOGLE_APPLICATION_CREDENTIALS or Application Default Credentials
-  are configured so BigQuery can authenticate.
+app.py – FastAPI backend for NLST volume-measurement dashboard
+
+Requires: fastapi, uvicorn[standard], python-dotenv, pandas, google-cloud-bigquery
+Auth: GOOGLE_APPLICATION_CREDENTIALS (or Secret File on Render) must be configured.
 """
 
 import os
@@ -13,32 +12,32 @@ import pandas as pd
 from dotenv import load_dotenv
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from google.cloud import bigquery
 
 # --------------------------------------------------
-# Environment and BigQuery client
+# Environment & clients
 # --------------------------------------------------
-
-load_dotenv()  # reads .env in the current working dir, if present
+load_dotenv()
 
 GCP_PROJECT = os.getenv("GCP_PROJECT", "idc-external-031")
+DEFAULT_LIMIT = int(os.getenv("DEFAULT_LIMIT", "15000"))  # cap rows for free-tier RAM
+
 client = bigquery.Client(project=GCP_PROJECT)
 
 # --------------------------------------------------
-# FastAPI app + CORS
+# FastAPI app + CORS + GZip
 # --------------------------------------------------
-
 app = FastAPI(
     title="NLST Volume Box-and-Whisker API",
-    version="0.1.0",
+    version="0.2.0",
     description="Serves clinical and segmentation-volume data for the React dashboard.",
 )
 
-# CORS configuration:
-# - FRONTEND_ORIGINS: comma-separated list of allowed origins.
-#   Example (Render/Vercel): "https://YOUR-SITE.vercel.app, http://localhost:5173"
-# - ALLOW_ORIGIN_REGEX: optional regex for preview URLs, e.g., r"https://.*-YOUR-SITE\.vercel\.app"
-# - ALLOW_CREDENTIALS: "true"/"false" (use true only if you rely on cookies)
+# CORS configuration via env:
+# - FRONTEND_ORIGINS: comma-separated list of allowed origins (no trailing slashes)
+# - ALLOW_ORIGIN_REGEX: optional regex for preview URLs, e.g. https://.*-user\.vercel\.app
+# - ALLOW_CREDENTIALS: "true"/"false" (keep false unless you rely on cookies)
 _frontend_origins = os.getenv("FRONTEND_ORIGINS", "http://localhost:5173")
 allow_origins = [o.strip() for o in _frontend_origins.split(",") if o.strip()]
 allow_origin_regex = os.getenv("ALLOW_ORIGIN_REGEX") or None
@@ -52,15 +51,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# --------------------------------------------------
-# Root/health routes
-# --------------------------------------------------
 
+# compress JSON responses
+app.add_middleware(GZipMiddleware, minimum_size=500)
+
+# --------------------------------------------------
+# Health / root
+# --------------------------------------------------
 @app.get("/")
 def read_root():
     return {"status": "ok", "service": "nlst-api"}
 
-# (optional) a dedicated health path Render can probe
 @app.get("/healthz")
 def health():
     return {"ok": True}
@@ -68,15 +69,14 @@ def health():
 # --------------------------------------------------
 # Helper: run a BigQuery SQL string and return DataFrame
 # --------------------------------------------------
-
 def bq(sql: str) -> pd.DataFrame:
     """Run a BigQuery query and return a pandas DataFrame."""
-    return client.query(sql).to_dataframe()
+    # Avoid optional BigQuery Storage dependency
+    return client.query(sql).to_dataframe(create_bqstorage_client=False)
 
 # --------------------------------------------------
 # Routes
 # --------------------------------------------------
-
 @app.get("/api/patient-data")
 def patient_data():
     """
@@ -97,16 +97,18 @@ def patient_data():
 
 @app.get("/api/volume-data")
 def volume_data(
-    structure: Optional[str] = Query(None, description="Filter by anatomical structure"),
+    structure: str = Query(..., description="Anatomical structure (required)"),
     smoking_status: Optional[List[str]] = Query(None, description="Filter by smoking status"),
     gender: Optional[List[str]] = Query(None, description="Filter by gender"),
     race: Optional[List[str]] = Query(None, description="Filter by race"),
     clinical_stage: Optional[List[str]] = Query(None, description="Filter by clinical stage"),
     min_age: Optional[int] = Query(None, description="Minimum age"),
     max_age: Optional[int] = Query(None, description="Maximum age"),
+    limit: int = Query(DEFAULT_LIMIT, ge=1000, le=200000, description="Max rows to return"),
 ):
     """
     Volume measurements with optional filters, returned as JSON.
+    Server-side LIMIT is applied to stay within memory on small instances.
     """
     sql = """
         SELECT
@@ -126,10 +128,8 @@ def volume_data(
         WHERE ClinicalTrialTimePointID IN ('T0', 'T1', 'T2')
     """
 
-    conditions: list[str] = []
+    conditions: List[str] = [f"structure = '{structure}'"]  # required
 
-    if structure:
-        conditions.append(f"structure = '{structure}'")
     if smoking_status:
         smoking_sql = "', '".join(smoking_status)
         conditions.append(f"cigsmok IN ('{smoking_sql}')")
@@ -149,6 +149,9 @@ def volume_data(
 
     if conditions:
         sql += " AND " + " AND ".join(conditions)
+
+    # keep results bounded; stable-ish ordering
+    sql += f"\nORDER BY ClinicalTrialTimePointID\nLIMIT {limit}"
 
     df = bq(sql)
 
@@ -222,14 +225,13 @@ def get_filter_options():
 # --------------------------------------------------
 # Local development entry-point
 # --------------------------------------------------
-
 if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
-        "app:app",           # module:variable (this file is main.py)
+        "app:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,         # auto-reload on code change (dev only)
+        reload=True,
         log_level="info",
     )
