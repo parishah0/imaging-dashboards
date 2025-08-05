@@ -14,9 +14,11 @@ Using this dashboard you can:
 * identify problematic segmentations
 * use it as a basis for developing more advanced dashboard and demonstrations
 
-Note that the dashboard relies on SQL queries against a Google BigQuery table containing the actual data. You will need to have credentials for a service account that is authorized to access that table if you would like to deploy this dashboard local.
+Note that the dashboard relies on SQL queries against a Google BigQuery table containing the actual data. You will need to have credentials for a service account that is authorized to access that table if you would like to deploy this dashboard locally.
 
-# Patient Dashboard Setup Guide
+# Patient Dashboard Setup Guide (For Local Deployment)
+
+If you're using the react-version branch, this setup guide does not apply. It is intended only for the local deployment branch (local-deployment).
 
 This project includes a backend (FastAPI) and frontend (React) for the Patient Dashboard. Follow the steps below to get started.
 
