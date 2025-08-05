@@ -14,7 +14,7 @@ Using this dashboard you can:
 * identify problematic segmentations
 * use it as a basis for developing more advanced dashboard and demonstrations
 
-Note that the dashboard relies on SQL queries against a Google BigQuery table containing the actual data. You will need to have credentials for a service account that is authorized to access that table if you would like to deploy this dashboard locally.
+Note that the dashboard relies on SQL queries against a Google BigQuery table containing the actual data. You will need to have credentials for a service account that is authorized to access that table if you would like to deploy this dashboard local.
 
 # Patient Dashboard Setup Guide
 
