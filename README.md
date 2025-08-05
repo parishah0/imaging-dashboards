@@ -1,3 +1,21 @@
+# About
+
+This repository implements interactive dashboard for exploring the content of the [`TotalSegmentator-CT-Segmentations` analysis results collection](https://doi.org/10.5281/zenodo.8347011) available from [NCI Imaging Data Commons](https://portal.imaging.datacommons.cancer.gov/explore/filters/?analysis_results_id=TotalSegmentator-CT-Segmentations). This collection includes volumetric segmentations generated using [`TotalSegmentator`](https://github.com/wasserth/TotalSegmentator) v1.6 model, an radiomics features extracted using [`pyradiomics`](https://github.com/AIM-Harvard/pyradiomics/). These analysis results augment the Computed Tomography (CT) images collected in the National Lung Screening Trial (NLST). To learn more about this dataset, check out the following references:
+
+> Thiriveedhi, V. K., Krishnaswamy, D., Clunie, D., & Fedorov, A. (2024). TotalSegmentator-CT-Segmentations: TotalSegmentator segmentations and radiomics features for NCI Imaging Data Commons CT images [Data set]. Zenodo. https://doi.org/10.5281/zenodo.13900142
+
+> Thiriveedhi, V. K., Krishnaswamy, D., Clunie, D., Pieper, S., Kikinis, R. & Fedorov, A. Cloud-based large-scale curation of medical imaging data using AI segmentation. Research Square (2024). https://doi.org/10.21203/rs.3.rs-4351526/v1
+  
+For a quick demonstration of the capabilities of this dashboard (limited to 15K records) see https://imaging-dashboards.vercel.app/.
+
+Using this dashboard you can:
+* examine the distributions of segmented organ volumes
+* evaluate differences longitudinaly and across the sub-populations
+* identify problematic segmentations
+* use it as a basis for developing more advanced dashboard and demonstrations
+
+Note that the dashboard relies on SQL queries against a Google BigQuery table containing the actual data. You will need to have credentials for a service account that is authorized to access that table if you would like to deploy this dashboard locally.
+
 # Patient Dashboard Setup Guide
 
 This project includes a backend (FastAPI) and frontend (React) for the Patient Dashboard. Follow the steps below to get started.
